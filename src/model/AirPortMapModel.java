@@ -1,4 +1,4 @@
-package polygon.convex;
+package model;
 
 import util.Point;
 
@@ -9,14 +9,13 @@ import java.util.List;
  * Created by think on 2017/7/3.
  */
 
-public class AirPortMapData {
+public class AirPortMapModel {
     private List<Point> points = new ArrayList<Point>();
-    private double[] distances = new double[9700];
 
-    public AirPortMapData() {
+    public AirPortMapModel() {
     }
 
-    public AirPortMapData(List<Point> points) {
+    public AirPortMapModel(List<Point> points) {
         this.points = points;
     }
 
@@ -30,14 +29,6 @@ public class AirPortMapData {
         });
     }
 
-    public void calculateEveryDistance(){
-        for(int i = 0; i < points.size(); i++){
-            for (int j = 0; j < points.size(); j++){
-                distances[i] = points.get(i).calculateDistance(points.get(j));
-                System.out.println(distances[i]);
-            }
-        }
-    }
 }
 /*
 10
@@ -61,4 +52,9 @@ public class AirPortMapData {
 30 50
 0 50
 
+4
+0 0
+0 1
+1 1
+1 0
 */
