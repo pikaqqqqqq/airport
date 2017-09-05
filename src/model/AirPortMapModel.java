@@ -11,6 +11,9 @@ import java.util.List;
 
 public class AirPortMapModel {
     private List<Point> points = new ArrayList<Point>();
+    private Point trackBeginPoints = new Point();
+    private Point trackEndPoints = new Point();
+
 
     public AirPortMapModel() {
     }
@@ -23,12 +26,32 @@ public class AirPortMapModel {
         return points;
     }
 
+    public void setTrackBeginPoints(Point trackBeginPoints) {
+        this.trackBeginPoints = trackBeginPoints;
+    }
+
+    public void setTrackEndPoints(Point trackEndPoints) {
+        this.trackEndPoints = trackEndPoints;
+    }
+
+    public Point getTrackBeginPoints() {
+        return trackBeginPoints;
+    }
+
+    public Point getTrackEndPoints() {
+        return trackEndPoints;
+    }
+
     public void readPoints(){
         points.forEach(point -> {
             System.out.println("x: " + point.getX() + " y: " + point.getY());
         });
     }
 
+    public void readBeginAndEnd() {
+        System.out.println("x: " + trackBeginPoints.getX() + " y: " + trackBeginPoints.getY());
+        System.out.println("x: " + trackEndPoints.getX() + " y: " + trackEndPoints.getY());
+    }
 }
 /*
 10
@@ -42,6 +65,18 @@ public class AirPortMapModel {
 5 9
 3 5
 1 8
+
+10
+0 1
+2 2
+4 0
+7 4
+9 1
+9 8
+8 7
+5 9
+3 6
+0 7
 
 7
 0 20

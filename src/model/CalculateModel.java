@@ -19,9 +19,20 @@ public class CalculateModel {
     private List<Point> points = new ArrayList<Point>();
     private double[] distances = new double[9700];
     int N;
+    private Point trackBeginPoints = new Point();
+    private Point trackEndPoints = new Point();
 
     public CalculateModel(Controller controller) {
         this.controller = controller;
+        for (int i = 0; i < controller.airPortMapModel.getPoints().size(); i++) {
+            util.Point point = new Point(controller.airPortMapModel.getPoints().get(i).getX(), controller.airPortMapModel.getPoints().get(i).getY());
+            points.add(point);
+        }
+        N = points.size();
+    }
+
+    public void updateMapData() {
+        points.clear();
         for (int i = 0; i < controller.airPortMapModel.getPoints().size(); i++) {
             util.Point point = new Point(controller.airPortMapModel.getPoints().get(i).getX(), controller.airPortMapModel.getPoints().get(i).getY());
             points.add(point);
@@ -42,6 +53,7 @@ public class CalculateModel {
     public void calculateAll() {
         makeCCLOrder();
         double ret = 0.0;
+        double retB = 0.0;
         for (int i = 0; i < N; i++) {
             for (int j = i + 1; j < N; j++) {
                 Point a = points.get(i);
@@ -66,49 +78,61 @@ public class CalculateModel {
                         double dp2 = dotP(minusPoint(b, a), minusPoint(p2, a));
                         if (dp2 <= 0 && dp2 <= dp1 && crossP(minusPoint(b, a), minusPoint(p3, a)) < 0) {
                             System.out.println(" alen p2: " + p2.getX() + "," + p2.getY());
+                            trackBeginPoints = p2;
                             alen = min(alen, dotP(minusPoint(a, b), minusPoint(p2, a)));
                         }
                         if (dp1 <= 0 && dp1 <= dp2 && crossP(minusPoint(b, a), minusPoint(p0, a)) > 0) {
                             System.out.println(" alen p1: " + p1.getX() + "," + p1.getY());
+                            trackBeginPoints = p1;
                             alen = min(alen, dotP(minusPoint(a, b), minusPoint(p1, a)));
                         }
                         if (dp2 >= 0 && dp2 >= dp1 && crossP(minusPoint(b, a), minusPoint(p3, a)) > 0) {
                             System.out.println(" blen p2: " + p2.getX() + "," + p2.getY());
+                            trackEndPoints = p2;
                             blen = min(blen, dotP(minusPoint(b, a), minusPoint(p2, a)));
                         }
                         if (dp1 >= 0 && dp1 >= dp2 && crossP(minusPoint(b, a), minusPoint(p0, a)) < 0) {
                             System.out.println(" blen p1: " + p1.getX() + "," + p1.getY());
+                            trackEndPoints = p1;
                             blen = min(blen, dotP(minusPoint(b, a), minusPoint(p1, a)));
                         }
                     } else if (crossP(minusPoint(p2, p1), minusPoint(a, p1)) >= 0 &&
                             crossP(minusPoint(b, a), minusPoint(p2, a)) < 0 &&
-                            crossP(minusPoint(b, a), minusPoint(p1, a)) > 0 ||
-                            crossP(minusPoint(b, a), minusPoint(p1, a)) == 0 &&
-                                    crossP(minusPoint(b, a), minusPoint(p0, a)) > 0) {
+                            (crossP(minusPoint(b, a), minusPoint(p1, a)) > 0 ||
+                                    crossP(minusPoint(b, a), minusPoint(p1, a)) == 0 &&
+                                            crossP(minusPoint(b, a), minusPoint(p0, a)) > 0)) {
                         System.out.println(">0");
                         Point ip = Intersection(p1, p2, a, b);
                         System.out.println(" Intersection alen ip: " + ip.getX() + "," + ip.getY());
+                        trackBeginPoints = ip;
                         alen = min(alen, dotP(minusPoint(a, b), minusPoint(ip, a)));
 
                     } else if (crossP(minusPoint(p2, p1), minusPoint(a, p1)) >= 0 &&
                             crossP(minusPoint(b, a), minusPoint(p2, a)) > 0 &&
-                            crossP(minusPoint(b, a), minusPoint(p1, a)) < 0 ||
-                            crossP(minusPoint(b, a), minusPoint(p1, a)) == 0 &&
-                                    crossP(minusPoint(b, a), minusPoint(p0, a)) < 0) {
+                            (crossP(minusPoint(b, a), minusPoint(p1, a)) < 0 ||
+                                    crossP(minusPoint(b, a), minusPoint(p1, a)) == 0 &&
+                                            crossP(minusPoint(b, a), minusPoint(p0, a)) < 0)) {
                         System.out.println("<0");
                         Point ip = Intersection(p1, p2, a, b);
                         System.out.println(" Intersection alen ip: " + ip.getX() + "," + ip.getY());
+                        trackEndPoints = ip;
                         blen = min(blen, dotP(minusPoint(b, a), minusPoint(ip, a)));
                     }
                 }
 
                 System.out.println(" ret: " + (alen + blen) / minusPoint(b, a).len());
+                retB = ret;
                 ret = max(ret, (alen + blen) / minusPoint(b, a).len());
+                if (ret != retB) {
+                    controller.airPortMapModel.setTrackBeginPoints(trackBeginPoints);
+                    controller.airPortMapModel.setTrackEndPoints(trackEndPoints);
+                }
                 System.out.println("");
             }
             System.out.println("---------------------------------------------------------");
         }
-        System.out.printf("" + ret);
+        System.out.println("" + ret);
+        controller.airPortMapModel.readBeginAndEnd();
     }
 
     public void makeCCLOrder() {
